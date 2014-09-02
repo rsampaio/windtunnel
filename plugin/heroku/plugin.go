@@ -1,11 +1,13 @@
 package heroku
 
 import (
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 )
 
@@ -32,17 +34,26 @@ func (this *Plugin) Authenticate() string {
 }
 
 func (this *Plugin) Status(token string, app string) []int {
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://api.heroku.com/apps/"+app+"/dynos", nil)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	herokuUrl := os.Getenv("HEROKU_API_URL")
+	if herokuUrl == "" {
+		herokuUrl = "https://api.heroku.com"
+	}
+	req, _ := http.NewRequest("GET", herokuUrl+"/apps/"+app+"/dynos", nil)
 	req.Header.Add("Accept", "application/vnd.heroku+json; version=3")
 	req.Header.Add("Authorization", token)
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	dynoJson, _ := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
-
 	var dynos []dyno
-	err := json.Unmarshal(dynoJson, &dynos)
+	err = json.Unmarshal(dynoJson, &dynos)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	"github.com/cf-platform-eng/windtunnel/plugin"
-	"github.com/cf-platform-eng/windtunnel/plugin/cloudfoundry"
-	"github.com/cf-platform-eng/windtunnel/plugin/heroku"
+	"github.com/rsampaio/windtunnel/plugin"
+	"github.com/rsampaio/windtunnel/plugin/cloudfoundry"
+	"github.com/rsampaio/windtunnel/plugin/heroku"
 	"github.com/codegangsta/cli"
 )
 
